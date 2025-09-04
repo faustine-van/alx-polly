@@ -63,14 +63,45 @@ export async function getUserPolls() {
 // GET POLL BY ID
 export async function getPollById(id: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  
+  // Get poll data
+  const { data: poll, error: pollError } = await supabase
     .from("polls")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error) return { poll: null, error: error.message };
-  return { poll: data, error: null };
+  if (pollError) return { poll: null, error: pollError.message };
+
+  // Get vote counts for each option
+  const { data: votes, error: votesError } = await supabase
+    .from("votes")
+    .select("option_index")
+    .eq("poll_id", id);
+
+  if (votesError) return { poll: null, error: votesError.message };
+
+  // Count votes by option
+  const voteCounts: { [key: number]: number } = {};
+  votes?.forEach(vote => {
+    voteCounts[vote.option_index] = (voteCounts[vote.option_index] || 0) + 1;
+  });
+
+  // Transform poll data to match frontend expectations
+  const transformedPoll = {
+    id: poll.id,
+    question: poll.question,
+    description: poll.description || '',
+    user_id: poll.user_id,
+    createdAt: poll.created_at,
+    options: poll.options.map((optionText: string, index: number) => ({
+      id: `option-${index}`,
+      text: optionText,
+      votes: voteCounts[index] || 0
+    }))
+  };
+
+  return { poll: transformedPoll, error: null };
 }
 
 // SUBMIT VOTE
@@ -93,6 +124,22 @@ export async function submitVote(pollId: string, optionIndex: number) {
 
   if (error) return { error: error.message };
   return { error: null };
+}
+
+// CHECK IF USER HAS VOTED
+export async function hasUserVoted(pollId: string, userId?: string) {
+  if (!userId) return { hasVoted: false, error: null };
+  
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("votes")
+    .select("id")
+    .eq("poll_id", pollId)
+    .eq("user_id", userId)
+    .limit(1);
+
+  if (error) return { hasVoted: false, error: error.message };
+  return { hasVoted: (data?.length || 0) > 0, error: null };
 }
 
 // DELETE POLL

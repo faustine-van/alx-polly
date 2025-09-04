@@ -26,21 +26,40 @@ export async function updateSession(request: NextRequest) {
       },
     }
   )
+  // Get the pathname
+  const { pathname } = request.nextUrl
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Public routes that don't require authentication
+  const publicRoutes = ['/login', '/register']
+  
+  // Check if the current path is a public route
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  // If it's a public route, allow access without checking auth
+  if (isPublicRoute) {
+    return supabaseResponse
+  }
+
+  try {
+    // Only check auth for protected routes
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser()
+
+    // If there's an error or no user for protected routes, redirect to login
+    if (error || !user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+
+    return supabaseResponse
+  } catch (error) {
+    // If there's any auth error, redirect to login
+    console.error('Middleware auth error:', error)
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
-
-  return supabaseResponse
 }

@@ -10,6 +10,7 @@ interface Poll {
   question: string;
   options: any[];
   user_id: string;
+  description: string;
 }
 
 interface PollActionsProps {

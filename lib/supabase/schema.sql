@@ -112,3 +112,5 @@ INSERT INTO polls (user_id, question, options) VALUES
 ('your-user-uuid-here', 'Best time for a team meeting?', 
  '["9 AM", "10 AM", "2 PM", "3 PM"]'::jsonb);
 */
+
+ALTER TABLE polls ADD COLUMN description TEXT;

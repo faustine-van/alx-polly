@@ -44,6 +44,10 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (pollId: string) => {
+    if (!confirm("Are you sure you want to delete this poll?")) {
+      return;
+    }
+
     setDeleteLoading(pollId);
     const result = await deletePoll(pollId);
 
@@ -109,18 +113,15 @@ export default function AdminPage() {
               <div className="space-y-2">
                 <h4 className="font-medium">Options:</h4>
                 <ul className="list-disc list-inside space-y-1">
-                  {/* Security Fix: Add defensive check for poll.options to prevent runtime TypeError */}
                   {poll.options && Array.isArray(poll.options) && poll.options.length > 0 ? (
                     poll.options.map((option, index) => (
                       <li key={index} className="text-gray-700">
                         {option}
                       </li>
-
                     ))
                   ) : (
                     <li className="text-gray-500">No options available.</li>
                   )}
-                  ))
                 </ul>
               </div>
             </CardContent>
