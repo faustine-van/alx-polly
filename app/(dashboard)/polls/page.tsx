@@ -1,10 +1,16 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { getUserPolls } from '@/app/lib/actions/poll-actions';
 import PollActions from './PollActions'; 
 
 export default async function PollsPage() {
   const { polls, error } = await getUserPolls();
+
+  // If not authenticated, redirect to login page
+  if (error === "Not authenticated") {
+    redirect('/login');
+  }
 
   return (
     <div className="space-y-6">
