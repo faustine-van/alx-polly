@@ -198,28 +198,6 @@ This project showcases modern AI-assisted development practices:
 - Combining AI insights with security expertise
 - Documenting AI-assisted development process
 
-## 🏗️ Project Structure
-
-```
-alx-polly/
-├── app/                    # Next.js 14 App Router
-│   ├── (dashboard)/       # Protected dashboard routes
-│   │   ├── polls/         # Poll management pages
-│   │   ├── admin/         # Admin panel
-│   │   └── page.tsx       # Dashboard home
-│   ├── auth/              # Authentication pages
-│   ├── api/               # API routes (if any)
-│   ├── lib/               # Server actions & utilities
-│   └── globals.css        # Global styles
-├── components/            # Reusable UI components
-│   ├── ui/               # Shadcn/UI components
-│   └── custom/           # Custom components
-├── lib/                   # Utilities & configurations
-│   ├── supabase/         # Database schema & client
-│   └── utils.ts          # Helper functions
-├── docs/                  # Documentation
-└── public/               # Static assets
-```
 
 ## 🔒 Security Features
 
@@ -314,7 +292,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_supabase_key
 
 ## 🤝 Contributing
 
-This is an ALX educational project, but contributions are welcome!
+This is an ALX educational project
 
 ### Development Guidelines
 - Follow ALX coding standards
@@ -331,9 +309,6 @@ This is an ALX educational project, but contributions are welcome!
 5. Update documentation
 6. Submit PR with detailed description
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -344,7 +319,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### 🤖 **AI Development Partners**
 - **Claude (Anthropic)** - Security analysis and code generation
-- **GitHub Copilot** - Code completion and suggestions
+- **Trae IDE (AI-assisted)** – Provided intelligent code completion and suggestions  
 - **ChatGPT** - Documentation and debugging assistance
 
 ### 🛠️ **Technology Stack**
@@ -352,11 +327,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Supabase](https://supabase.com/) - Open source Firebase alternative
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - [Shadcn/UI](https://ui.shadcn.com/) - Beautiful UI components
-
-### 👥 **Community**
-- ALX Software Engineering Cohort
-- Open source security community
-- Next.js and Supabase communities
 
 ## 📊 Project Stats
 
@@ -370,8 +340,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🌟 About the Developer
 
 **Faustine Van** - ALX Software Engineering Student  
-📧 Email: [faustine.van@example.com](mailto:faustine.van@example.com)  
-🔗 LinkedIn: [Connect with me](https://linkedin.com/in/faustine-van)  
+📧 Email: [faustinemuhayemariya@.com](mailto:faustinemuhayemariya@.com)  
 🐙 GitHub: [@faustine-van](https://github.com/faustine-van)
 
 > *"Security is not a product, but a process. This project demonstrates the importance of building security into every layer of modern web applications."*
