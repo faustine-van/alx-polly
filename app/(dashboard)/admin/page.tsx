@@ -20,6 +20,49 @@ interface Poll {
   options: string[];
 }
 
+/**
+ * Renders the administrative dashboard page for managing all polls in the system.
+ *
+ * @description
+ * This client-side component serves as the central hub for administrators to oversee and moderate content.
+ * Unlike regular users who can only manage their own polls, an admin accessing this page can view and delete
+ * any poll created by any user. This is crucial for maintaining the application's integrity by removing
+ * spam, inappropriate content, or test data.
+ *
+ * The component fetches all polls directly from the Supabase database on mount. It then displays them in a list
+ * of cards, with each card providing details about the poll and an option to delete it.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered admin page.
+ *
+ * @logic
+ * - **State Management**: Uses `useState` to manage the list of `polls`, a `loading` state for the initial data fetch,
+ *   and a `deleteLoading` state to provide feedback when a deletion is in progress.
+ * - **Data Fetching**: On component mount, `useEffect` calls `fetchAllPolls`, which uses the client-side Supabase
+ *   instance to retrieve all records from the 'polls' table.
+ * - **Deletion Handling**: The `handleDelete` function is triggered by the "Delete" button. It first asks for user
+ *   confirmation, then calls the `deletePoll` server action to perform the secure deletion on the backend.
+ *   Upon successful deletion, it optimistically updates the UI by removing the poll from the local state.
+ *
+ * @connects_to
+ * - **`@/app/lib/actions/poll-actions`**: Invokes the `deletePoll` server action to handle the deletion logic securely.
+ * - **`@/lib/supabase/client`**: Uses the client-side Supabase SDK to fetch a list of all polls.
+ * - **`@/components/ui/*`**: Leverages ShadCN UI components like `Card` and `Button` for a consistent look and feel.
+ *
+ * @assumptions
+ * - **Admin Access**: It is assumed that routing or a higher-order component restricts access to this page to only
+ *   users with an 'admin' role. This component itself does not perform role-based access control.
+ * - **Supabase RLS**: The Supabase Row Level Security (RLS) policy for the `polls` table must be configured to
+ *   allow users with an 'admin' role to perform `SELECT` operations on all rows.
+ *
+ * @edge_cases
+ * - **No Polls**: If no polls are found in the database, a message "No polls found in the system" is displayed.
+ * - **Fetch Failure**: If the `fetchAllPolls` function fails (e.g., due to network error or RLS misconfiguration),
+ *   the loading state will end, and an empty page will be shown.
+ * - **Deletion Failure**: If the `deletePoll` action returns an error, the loading state on the button is removed,
+ *   and the poll remains in the list, providing implicit feedback that the operation failed.
+ * - **Empty Options**: The component gracefully handles polls that may have no options by displaying a fallback message.
+ */
 export default function AdminPage() {
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);

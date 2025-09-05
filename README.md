@@ -57,6 +57,14 @@ This project was originally built with **intentional security vulnerabilities** 
 - AI-assisted vulnerability assessment
 - Implementation of enterprise-grade security measures
 
+## 📄 Sample Noted Files
+
+These files include inline comments and JSDoc-style docstrings explaining the code, assumptions, edge cases, and connections to other components. They serve as **living documentation** for the project.
+
+- [Admin Dashboard Page (`page.tsx`)](./app/(dashboard)/admin/page.tsx)
+- [Login Function (`auth-actions.ts`)](./lib/auth/auth-actions.ts)
+- [Poll Options Normalizer (`page.tsx`)](./app/(dashboard)/polls/[id]/edit/EditPollForm.tsx)
+
 ## 🛡️ Security Audit Results
 
 ### 📊 Vulnerability Summary
