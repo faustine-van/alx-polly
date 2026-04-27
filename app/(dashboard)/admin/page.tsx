@@ -9,6 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { deletePoll } from "@/app/lib/actions/poll-actions";
 import { createClient } from "@/lib/supabase/client";
 
@@ -20,65 +22,38 @@ interface Poll {
   options: string[];
 }
 
-/**
- * Renders the administrative dashboard page for managing all polls in the system.
- *
- * @description
- * This client-side component serves as the central hub for administrators to oversee and moderate content.
- * Unlike regular users who can only manage their own polls, an admin accessing this page can view and delete
- * any poll created by any user. This is crucial for maintaining the application's integrity by removing
- * spam, inappropriate content, or test data.
- *
- * The component fetches all polls directly from the Supabase database on mount. It then displays them in a list
- * of cards, with each card providing details about the poll and an option to delete it.
- *
- * @component
- * @returns {JSX.Element} The rendered admin page.
- *
- * @logic
- * - **State Management**: Uses `useState` to manage the list of `polls`, a `loading` state for the initial data fetch,
- *   and a `deleteLoading` state to provide feedback when a deletion is in progress.
- * - **Data Fetching**: On component mount, `useEffect` calls `fetchAllPolls`, which uses the client-side Supabase
- *   instance to retrieve all records from the 'polls' table.
- * - **Deletion Handling**: The `handleDelete` function is triggered by the "Delete" button. It first asks for user
- *   confirmation, then calls the `deletePoll` server action to perform the secure deletion on the backend.
- *   Upon successful deletion, it optimistically updates the UI by removing the poll from the local state.
- *
- * @connects_to
- * - **`@/app/lib/actions/poll-actions`**: Invokes the `deletePoll` server action to handle the deletion logic securely.
- * - **`@/lib/supabase/client`**: Uses the client-side Supabase SDK to fetch a list of all polls.
- * - **`@/components/ui/*`**: Leverages ShadCN UI components like `Card` and `Button` for a consistent look and feel.
- *
- * @assumptions
- * - **Admin Access**: It is assumed that routing or a higher-order component restricts access to this page to only
- *   users with an 'admin' role. This component itself does not perform role-based access control.
- * - **Supabase RLS**: The Supabase Row Level Security (RLS) policy for the `polls` table must be configured to
- *   allow users with an 'admin' role to perform `SELECT` operations on all rows.
- *
- * @edge_cases
- * - **No Polls**: If no polls are found in the database, a message "No polls found in the system" is displayed.
- * - **Fetch Failure**: If the `fetchAllPolls` function fails (e.g., due to network error or RLS misconfiguration),
- *   the loading state will end, and an empty page will be shown.
- * - **Deletion Failure**: If the `deletePoll` action returns an error, the loading state on the button is removed,
- *   and the poll remains in the list, providing implicit feedback that the operation failed.
- * - **Empty Options**: The component gracefully handles polls that may have no options by displaying a fallback message.
- */
 export default function AdminPage() {
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    fetchAllPolls();
-  }, []);
+    fetchAllPolls(searchTerm, date);
+  }, [searchTerm, date]);
 
-  const fetchAllPolls = async () => {
+  const fetchAllPolls = async (searchTerm: string, date: Date | undefined) => {
     const supabase = createClient();
-
-    const { data, error } = await supabase
+    let query = supabase
       .from("polls")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (searchTerm) {
+      query = query.ilike("question", `%${searchTerm}%`);
+    }
+
+    if (date) {
+      const newDate = new Date(date);
+      newDate.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(newDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      query = query.gte("created_at", newDate.toISOString());
+      query = query.lt("created_at", tomorrow.toISOString());
+    }
+
+    const { data, error } = await query;
 
     if (!error && data) {
       setPolls(data);
@@ -112,6 +87,16 @@ export default function AdminPage() {
         <p className="text-gray-600 mt-2">
           View and manage all polls in the system.
         </p>
+      </div>
+
+      <div className="flex space-x-4 mb-4">
+        <Input
+          placeholder="Search by title..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <DatePicker onDateChange={setDate} />
       </div>
 
       <div className="grid gap-4">
@@ -156,7 +141,9 @@ export default function AdminPage() {
               <div className="space-y-2">
                 <h4 className="font-medium">Options:</h4>
                 <ul className="list-disc list-inside space-y-1">
-                  {poll.options && Array.isArray(poll.options) && poll.options.length > 0 ? (
+                  {poll.options &&
+                  Array.isArray(poll.options) &&
+                  poll.options.length > 0 ? (
                     poll.options.map((option, index) => (
                       <li key={index} className="text-gray-700">
                         {option}
